@@ -1,25 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useRef } from 'react';
+import { Form } from '@unform/web';
+import Input from './components/Input';
+import * as Yup from 'yup';
 
 function App() {
+  const formRef = useRef(null);
+
+  const handleSubmit = async data => {
+    try {
+      formRef.current.setErrors({});
+
+      const schema = Yup.object().shape({
+        email: Yup.string().email().required(),
+        password: Yup.string().min(6).required(),
+      });
+
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+
+      console.log(data);
+    } catch (err) {
+      const validationErrors = {};
+
+      if (err instanceof Yup.ValidationError) {
+        err.inner.forEach(error => {
+          validationErrors[error.path] = error.message;
+        });
+
+        formRef.current.setErrors(validationErrors);
+      }
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Form ref={formRef} onSubmit={handleSubmit}>
+      <h1>Faça login</h1>
+
+      <Input name="email" />
+      <Input type="password" name="password" />
+
+      <button type="submit">Login</button>
+    </Form>
   );
 }
 
