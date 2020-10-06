@@ -11,8 +11,12 @@ function App() {
       formRef.current.setErrors({});
 
       const schema = Yup.object().shape({
-        email: Yup.string().email().required(),
-        password: Yup.string().min(6).required(),
+        email: Yup.string()
+          .email('Deve ser do tipo email')
+          .required('Email obrigatório'),
+        password: Yup.string()
+          .min(6, 'Mínimo 6 caracteres')
+          .required('Senha obrigatória'),
       });
 
       await schema.validate(data, {
